@@ -29,6 +29,7 @@
 #define SDL_error_h_
 
 #include "SDL_stdinc.h"
+#include "SDL_log.h"
 
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
@@ -137,7 +138,15 @@ extern DECLSPEC void SDLCALL SDL_ClearError(void);
  */
 /* @{ */
 #define SDL_OutOfMemory()   SDL_Error(SDL_ENOMEM)
-#define SDL_Unsupported()   SDL_Error(SDL_UNSUPPORTED)
+
+inline int LogAndReturn(int error, const char *function, const char *file, int line)
+{
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_UNSUPPORTED %s in %s:%d", function, file, line);
+    return error;
+}
+
+#define SDL_Unsupported() \
+    LogAndReturn(SDL_Error(SDL_UNSUPPORTED), __FUNCTION__, __FILE__, __LINE__)
 #define SDL_InvalidParamError(param)    SDL_SetError("Parameter '%s' is invalid", (param))
 typedef enum
 {
